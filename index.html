@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>算法分析</title>
+</head>
+<body>
+
+</body>
+<!--<script src="String/stringReverse.js"></script>-->
+<!--<script src="String/calcString.js"></script>-->
+<!--<script src="Array/singleNumber.js"></script>-->
+<script src="Array/phoneNumCombinations.js"></script>
+<script type="text/javascript">
+    var arr = [1, 2, 3, 4, 5, 6, 7];
+
+    // 链表节点类
+    function ListNode(value) {
+        this.value = value;
+        this.next = null;
+    }
+
+    // 创建一个链表
+    function createList(arr) {
+        if (!(Array.isArray(arr))) {
+            return;
+        }
+
+        // 实例化头结点
+        var head = new ListNode(arr[0]);
+
+        // 使用指针 temp 去操作链表
+        var temp = head;
+
+        for (var i = 1; i < arr.length; i++) {
+            temp.next = new ListNode(arr[i]);   // next 指针指向下一个节点
+            temp = temp.next;                   // temp 指针前移
+        }
+
+        return head;
+    }
+
+    // 创建一个链表，获取头结点
+    var head = createList(arr);
+
+    // 反转链表
+    function reverseList(head) {
+        var prev = head;
+        var cur = head.next;
+
+        while (cur.next !== null) {
+            var temp = prev;  // 缓存 prev
+            prev = cur;       // prev 指针前移
+            cur = cur.next;   // cur 指针前移
+            prev.next = temp; // next 指针转向
+            (temp.value === 1) ? (temp.next = null) : null;
+        }
+
+        // 链表头部改变
+        head = cur;
+        head.next = prev;
+
+        // 指针置空
+        prev = null;
+        cur = null;
+
+        return head;
+    }
+
+    head = reverseList(head);
+    console.log(head);
+    // 17
+</script>
+</html>
