@@ -13,57 +13,54 @@
 * 
 * */
 
-var str = '2';
-var letterCombinations = function(digits) {
-    if (!(typeof digits === 'string')) {
-        return;
-    }
+var str = '23';
 
-    if (digits === '') {
-        return [];
-    }
-
-    var arr = digits.split('');
-    var letters = {
-        2: 'abc',
-        3: 'def',
-        4: 'ghi',
-        5: 'jkl',
-        6: 'mno',
-        7: 'pqrs',
-        8: 'tuv',
-        9: 'wxyz',
+function testLetterCombinations(digits) {
+    // 映射对象
+    var mapToLetters = {
+        2: ['a', 'b', 'c'],
+        3: ['d', 'e', 'f'],
+        4: ['g', 'h', 'i'],
+        5: ['j', 'k', 'l'],
+        6: ['m', 'n', 'o'],
+        7: ['p', 'q', 'r', 's'],
+        8: ['t', 'u', 'v'],
+        9: ['w', 'x', 'y', 'z'],
     };
 
-    var mapLetters = function (arr) {
-        return arr.map(item => letters[item]);
-    };
+    // 获取映射后的字母数组
+    var getLettersGroup = function (digits) {
+        if (digits === '')
+            return [];
 
-    var combinationTwo = function (arr) {
-        if (!(arr instanceof Array)) {
-            return;
+        var result = [];
+        for (var i = 0; i < digits.length; i++) {
+            result.push(mapToLetters[digits[i]]);
         }
+        return result;
+    };
 
+    // 字母组合
+    var calcLetters = function (arr) {
         if (arr.length > 1) {
-            var temp = [];
+            var temp = [];  // 暂存组合结果
+
+            // 每次递归都两两组合（第一个子数组与第二个子数组）
             for (var i = 0; i < arr[0].length; i++) {
                 for (var j = 0; j < arr[1].length; j++) {
                     temp.push(arr[0][i] + arr[1][j]);
                 }
             }
-            arr.splice(0, 2, temp);
-            return combinationTwo(arr);
-        } else {
+            arr.splice(0, 2, temp);  // 组合后，删除组合过的子数组，新增组合结果
+            return calcLetters(arr);
+        } else if (arr.length === 1) {
             return arr[0];
+        } else {
+            return [];
         }
     };
 
-    var letterGroup = mapLetters(arr);
-    if (letterGroup.length > 1) {
-        return combinationTwo(mapLetters(arr));
-    } else {
-        return letterGroup[0].split('');
-    }
-};
+    return calcLetters(getLettersGroup(digits));
+}
 
-console.log(letterCombinations(str));
+console.log(testLetterCombinations(str));
