@@ -20,87 +20,38 @@
 * 详细信息：['10', '01', '10', '01']
 * */
 
-var str = '00110011';
-
-// 单向推导
-var countBinarySubstrings = function(str) {
-    var arr = [];
-
-    // 一次循环，不断遍历子串
-    for (var i = 0; i < str.length; i++) {
-        var temp = str.slice(i);   // 每个子串都比上一次缺少头部字符
-        var result = compareStr(temp);  // 获取符合条件的子串
-        result && arr.push(result);
-    }
-    console.log(arr);
-    return arr.length;
-
-    // 依据规则，筛选子串
-    function compareStr(str) {
-
-        // 记事本
-        var obj = { 0:0, 1:0, isChange: false, record: null, str: '' };
-
-        for (var i = 0; i < str.length; i++) {
-            // 记下首次出现的字符
-            (i === 0) ? (obj.record = str[i]) : null;
-
-            // 当记录的字符与当前遍历到的字符不相等，且开关状态未改变时
-            if (obj.record !== str[i] && !obj.isChange) {
-                obj.isChange = true;  // 开关变化，表示字符记录已经更新
-                obj.record = str[i];  // 更新字符记录
-            }
-
-            // 当记录的字符与当前遍历到的字符不相等，且开关状态已改变，
-            // 表示字符出现了第二次变化，此时跳出循环
-            if (obj.isChange && obj.record !== str[i]) {
-                break;
-            }
-
-            obj[str[i]]++;      // 字符计数器自增
-            obj.str += str[i];  // 收集字符
-
-            // 若两个字符计数器相等，表示已收集到符合题意的字符串，跳出循环
-            if (obj[0] === obj[1]) {
-                break;
-            }
-        }
-
-        return (obj[0] === obj[1]) ? obj.str : null;
-    }
-};
+var s = '00110011';
 
 // 双向推导
-var countBinarySubstringsMid = function(str) {
-    var arr = [];
+var countBinarySubstrings = function(s) {
+    if (typeof s !== 'string') {
+        return 0;
+    }
 
-    for (var i = 0; i < str.length - 1; i++) {
+    var prev = null, next = null, result = 0;  // prev next 双指针
+    var prev_temp = null, next_temp = null;    // 双指针暂存器
 
-        // 发现目标（起始时，相邻字符必不同）
-        if (str[i] !== str[i + 1]) {
-            var left = i, right = i + 1;
+    for (var i = 0; i < s.length; i++) {
+        prev = i;
+        next = i + 1;
 
-            // 左右双向，发掘相同字符，且新字符与初始字符必相同
-            while (left > -1 && right < str.length &&
-            str[i] === str[left] && str[i + 1] === str[right]) {
-                arr.push(showStr(str, left, right));
-                left--;
-                right++;
+        if (s[prev] && s[next]) {
+            // 发现起点，记录当前值
+            if (s[prev] !== s[next]) {
+                prev_temp = s[prev];
+                next_temp = s[next];
+
+                // 沿起点左右探索
+                while (s[next] && s[next] === next_temp && s[prev] && s[prev] === prev_temp) {
+                    prev--;
+                    next++;
+                    result++;
+                }
             }
         }
     }
 
-    function showStr(str, start, end) {
-        var result = '';
-        for (var i = start; i < end + 1; i++) {
-            result += str[i];
-        }
-        return result;
-    }
-
-    console.log(arr);
-    return arr.length;
+    return result;
 };
 
 console.log(countBinarySubstrings(str));
-console.log(countBinarySubstringsMid(str));

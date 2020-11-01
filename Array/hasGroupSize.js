@@ -20,55 +20,39 @@
 *
 * */
 
-var arr = [1, 2, 3, 4, 4, 3, 2, 1];
-
 // 题解：该题包含了一个子问题，即求两个数(n1, n2)的最大公约数
-// 参数 a = n1, 参数 b = n2 || a % b (数学关系可自行推导)
-var cdr = function (a, b) {
-    if (b === 0) {
-        return a;
-    } else {
-        return cdr(b, a % b);
-    }
-};
 
-var hasGroupSize = function (arr) {
-    // 依题意，数组长度至少为 2
-    if (arr.length < 2) {
+var hasGroupsSizeX = function(deck) {
+    if (!Array.isArray(deck) || (deck[0] === 1 && deck.length === 1)) {
         return false;
     }
 
-    // 数组元素分类
-    var obj = {};
-    arr.forEach(item => {
-       if (obj.hasOwnProperty(item)) {
-           obj[item].push(item);
-       } else {
-           obj[item] = [item];
-       }
+    // 记录每张牌的数量
+    var deckMap = {};
+    deck.forEach(item => {
+        if (deckMap[item]) {
+            deckMap[item]++;
+        } else {
+            deckMap[item] = 1;
+        }
     });
 
-    // 统计各数字的个数
-    var temp = [];
-    for (var key in obj) {
-        temp.push(obj[key].length);
-    }
+    var arr = Object.values(deckMap); // 对象的 value 转数组
 
-    // 对所有的数求公约数
-    while (temp.length > 1) {
-        var a = temp.shift();
-        var b = temp.shift();
-        var val = cdr(a, b);
+    // 三目运算 + 递归，求 x，y 的最大公约数
+    var gcd = function (x, y) {
+        return x ? gcd(y % x, x) : y;
+    };
 
-        // 数学定律：两数的最小公约数为 1，因此若 val = 1，则没有最大公约数
-        if (val === 1) {
-            return false;
-        } else {
-            temp.unshift(val);
+    while (arr.length > 1) {
+        var x = arr.shift();
+        var y = arr.shift();
+        var divisor = gcd(x, y);
+        if (divisor === 1) {
+            return false;   // 最大公约数不能为 1
         }
+        arr.unshift(divisor);
     }
 
     return true;
 };
-
-console.log(hasGroupSize(arr));

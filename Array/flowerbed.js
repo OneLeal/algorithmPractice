@@ -15,38 +15,43 @@
 *
 * */
 
-var arr = [1,0,0,0,1];
+var flowerbed = [0,0,0,0,1], n = 2;
+
 var canPlaceFlowers = function(flowerbed, n) {
-    if (n === 0) {
-        return true;
-    }
-
-    if (flowerbed.length < 2 && flowerbed[0] === 0 && n === 1) {
-        return true;
-    }
-
-    if (flowerbed.length < 2 && flowerbed[0] === 1 && n === 1) {
+    if (typeof n !== 'number' || !Array.isArray(flowerbed) || n < 0 || n > flowerbed.length) {
         return false;
     }
 
-    var count = n;
-    for (var i = 0; i < flowerbed.length - 1; i++) {
-        if (flowerbed[i] === 0) {
-            // 考虑边界，数组末端
-            if (i + 1 === flowerbed.length - 1 && flowerbed[i] === 0 && flowerbed[i + 1] === 0) {
-                flowerbed[i + 1] = 1;
-                count--;
-            }
+    // 边界条件
+    if ((flowerbed.length === 1 && flowerbed[0] === 0 && n === 1) || n === 0 || (n === 0 && flowerbed.length === 0)) {
+        return true;
+    }
 
-            if (flowerbed[i - 1] === 0 && flowerbed[i + 1] === 0) {  // 数组中间
+    for (var i = 0; i < flowerbed.length; i++) {
+        if (n === 0) {
+            break;
+        }
+
+        // 花坛的起始位置、结束位置、中间位置分别判断
+        if (i === 0) {
+            if (flowerbed[i + 1] === 0 && flowerbed[i] === 0) {
+                n--;
                 flowerbed[i] = 1;
-                count--;
-            } else if (flowerbed[i + 1] === 0 && i === 0) {   // 考虑边界，数组头部
+            }
+        } else if (i === flowerbed.length - 1) {
+            if (flowerbed[i - 1] === 0 && flowerbed[i] === 0) {
+                n--;
                 flowerbed[i] = 1;
-                count--;
+            }
+        } else {
+            if (flowerbed[i] === 0 && flowerbed[i + 1] === 0 && flowerbed[i - 1] === 0) {
+                n--;
+                flowerbed[i] = 1;
             }
         }
     }
-    return count < 1;
+
+    return n < 1;
 };
-console.log(canPlaceFlowers(arr, 2));
+
+console.log(canPlaceFlowers(flowerbed, n));

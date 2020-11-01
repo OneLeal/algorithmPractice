@@ -15,8 +15,8 @@
 
 var str = '23';
 
-function testLetterCombinations(digits) {
-    // 映射对象
+// 思路 1：分步乘法 + 递归
+var letterCombinations1 = function(digits) {
     var mapToLetters = {
         2: ['a', 'b', 'c'],
         3: ['d', 'e', 'f'],
@@ -45,7 +45,7 @@ function testLetterCombinations(digits) {
         if (arr.length > 1) {
             var temp = [];  // 暂存组合结果
 
-            // 每次递归都两两组合（第一个子数组与第二个子数组）
+            // 分步乘法
             for (var i = 0; i < arr[0].length; i++) {
                 for (var j = 0; j < arr[1].length; j++) {
                     temp.push(arr[0][i] + arr[1][j]);
@@ -61,6 +61,50 @@ function testLetterCombinations(digits) {
     };
 
     return calcLetters(getLettersGroup(digits));
-}
+};
 
-console.log(testLetterCombinations(str));
+// 思路 2：分步乘法 + while
+var letterCombinations2 = function(digits) {
+    if (typeof digits !== 'string' || digits === '') {
+        return [];
+    }
+
+    // 映射对象
+    var mapToLetters = {
+        2: ['a', 'b', 'c'],
+        3: ['d', 'e', 'f'],
+        4: ['g', 'h', 'i'],
+        5: ['j', 'k', 'l'],
+        6: ['m', 'n', 'o'],
+        7: ['p', 'q', 'r', 's'],
+        8: ['t', 'u', 'v'],
+        9: ['w', 'x', 'y', 'z'],
+    };
+
+    var arr = [];
+    for (var i = 0; i < digits.length; i++) {
+        arr.push(mapToLetters[digits[i]]);
+    }
+
+    var result = arr.shift();  // 拿到第一个字符组合
+
+    // 分步乘法原理做循环
+    var cycle = function (arr1, arr2) {
+        var tar = [];
+        arr1.forEach(i1 => {
+            arr2.forEach(i2 => {
+                tar.push(i1 + i2);
+            });
+        });
+        return tar;
+    };
+
+    while (arr.length) {
+        result = cycle(result, arr.shift());
+    }
+
+    return result;
+};
+
+console.log(letterCombinations1(str));
+console.log(letterCombinations2(str));
