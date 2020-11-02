@@ -17,74 +17,62 @@
 *
 * */
 
-// 递归，但不回溯，枚举出所有可能并穷尽执行循环次数
-function restoreIpAddresses(s) {
+// 解法 1：递归子串 + dfs
+var restoreIpAddresses1 = function(s) {
     var result = [];
-
-    function search(cur, sub){
-        // 当字符串大于12时肯定不能生成一个合法的IP地址
-        if(sub.length > 12){
-            return;
-        }
-
-        // 当当前数组中元素为4且拼接起来恰好需要处理的字符串，则将其加入result数组
-        if(cur.length === 4 && cur.join('') === s){
-            result.push(cur.join('.'));
-        } else {
-            // 否则，分别取出代码前1、2、3位进行递归处理
-            // 由于剩余的字符串长度不一定大于等于3，所以对于长度还需要进行最小值的判断
-            for(var i = 0, length = Math.min(3, sub.length); i < length; i++){
-                var temp = sub.slice(0, i + 1);
-                // 若数值大于255，则不可能形成合法IP地址
-                if(+temp < 256){
-                    // 分割出的字符串若长度大于1，则第一位不允许为0
-                    if(temp.length > 1 && temp[0] === '0'){
-                        continue;
+    var range = function (tar, sub) {
+        // 边界条件：IP 地址的最大长度为 12
+        if (sub.length < 13 ) {
+            // 4 组字符收集完毕且 s 中的字符全部用完
+            if (tar.length === 4 && tar.join('') === s) {
+                result.push(tar.join('.'));
+            } else {
+                // 每次递归收集某一组字符时，都有 3 种可能，且要考虑 s 长度小于 12 时的情况
+                for (var i = 0, len = Math.min(3, sub.length); i < len; i++) {
+                    var char = sub.slice(0, i + 1);
+                    if (+char < 256) {
+                        // 边界条件：0xx 或 0x 为非法字符
+                        !(char.length > 1 && char[0] === '0') && range(tar.concat(char), sub.slice(i + 1));
                     }
-                    search([...cur, temp], sub.slice(i + 1));
                 }
             }
         }
-    }
-    search([], s);
+    };
+    range([], s);
     return result;
-}
+};
 
-// 回溯 + DFS（depth first search 深度优先搜索）
-const restoreIpAdd = (s) => {
-    const res = [];
-
-    // 复原从start开始的子串
-    const dfs = (subRes, start) => {
-        // 满4段，且用光所有字符
-        if (subRes.length == 4 && start == s.length) {
-            res.push(subRes.join('.'));     // 4段拼成字符串 推入结果数组
-            return;                        // 指针已经到头了，返回
-        }
-
-        // 满4段，但还没用光字符,直接返回
-        if (subRes.length == 4 && start < s.length) {
+// 解法 2：回溯下标 + dfs
+var restoreIpAddresses2 = function(s) {
+    var result = [];
+    var dfs = function (tar, index) {
+        // 4 组字符收集完毕且 s 中的字符全部用完
+        if (tar.length === 4 && index === s.length) {
+            result.push(tar.join('.'));
             return;
         }
 
-        // 三种长度的选择
-        for (let len = 1; len <= 3; len++) {
-            if (start + len - 1 >= s.length) return;     // 指针超出边界了
-            if (len != 1 && s[start] == '0') return;     // 不能是0x、0xx
+        // 边界条件：4 组字符收集完毕但 s 中的字符没有用完
+        if (tar.length === 4 && index < s.length) return;
 
-            const str = s.substring(start, start + len); // 当前选择切出的片段
-            if (len == 3 && +str > 255) return;          // 不能超过 255
+        for (var i = 1; i < 4; i++) {
+            // 每次递归收集某一组字符时，都有 3 种可能，且要考虑 s 长度小于 12 时的情况
+            if (index + i > s.length) return;
+            var char = s.slice(index, index + i);
 
-            subRes.push(str);                 // 作出选择
-            dfs(subRes, start + len);   // 基于这种选择，向下探索
-            subRes.pop();                     // 撤销最后的选择，回到之前的状态
+            // 边界条件：0xx 或 0x 为非法字符，且一组 IP 值应小于 256
+            if (+char > 255 || (char.length > 1 && char[0] === '0')) return;
+            dfs(tar.concat(char), index + i);
         }
     };
-
     dfs([], 0);
-    return res;
-
+    return result;
 };
+
+/*
+* 两种方法都是递归，只不过解法 2 中有多个 return，更符合回溯（特殊的递归）的特征；
+* 无论是递归下标还是子串，只要在循环内能取到字符即可；
+* */
 
 /*
  * 思路:
