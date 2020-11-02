@@ -5,51 +5,48 @@
 *
 * */
 
-var s = 'barfoothefoobarman';
-var words = ['foo', 'bar'];
-
 /*
 * 思路 1：
 * 通过数学的排列组合规律，枚举出所有子串，最后逐个筛选
 * 枚举 + 排列组合 → 递归 + 循环
-* findSubstringCopy 存在一定缺陷，不能通过 LeetCode 某些测试用例
+* 缺点：两次递归会用尽堆内存，不能通过 LeetCode 某些测试用例
+* 注：
+* 1. words 中可能会出现相同的单词，因此排列（有序）出的子串可能会相同；
+* 为获取不同的单词组合（无序），在排列后要进行数组去重；
+*
+* 2. 子串可能会在 s 中出现多次，因此还需再次使用递归处理；
 * */
-var findSubstringCopy = function(s, words) {
-    if (typeof s !== 'string' || !(Array.isArray(words))) {
-        return false;
-    }
-
-    if (s === '' || !words.length) {
-        return [];
-    }
-
-    var wordsLen = words.length;
+var findSubstring1 = function(s, words) {
     var result = [];
+    var indexArr = [];
 
-    /*
-    * 递归函数
-    * tar: Array 记录某一种单词的组合
-    * arr： Array 传入的单词数组
-    * */
-    var range = function (tar, arr) {
-        // 边界条件：二者长度相等
-        if (tar.length === wordsLen) {
-            result.push(tar);
+    // 排列递归：对 w 中的单词进行全排列，tar 存放一次排列完成的结果
+    var getWords = function (tar, w) {
+        // 二者长度相同表示一次排列完成
+        if (tar.length === words.length) {
+            result.push(tar.join(''));
         } else {
-            arr.forEach((item, index) => {
-                // item: 踢出去的元素，temp: 删除 item 之后所剩余的元素集合
-                var temp = [].concat(arr);            // 暂时拷贝一份数据
-                temp.splice(index, 1);    // 踢出 item
-                range(tar.concat(item), temp);         // 不断递归，深度探索
+            // 枚举出可选择的单词
+            w.forEach((item, index) => {
+                var temp = [].concat(w);  // 对引用类型数据的拷贝
+                temp.splice(index, 1); // 删除当前选择的单词
+                getWords(tar.concat(item), temp); // tar: 存放该次所选单词；temp: 剩余单词
             });
         }
     };
 
-    range([], words);
-    return result
-        .map(item => s.indexOf(item.join('')))   // 数组转字符串并返回下标
-        .filter(item => item > -1)               // 筛选存在的字符串的下标
-        .filter((item, index, arr) => arr.indexOf(item) === index);  // 数组去重
+    // 下标递归
+    var getIndex = function(item, s, from = 0) {
+        var temp = s.indexOf(item, from);
+        if (temp === -1) return;
+        indexArr.push(temp);
+        getIndex(item, s, temp + 1); // item: 子串；s: 目标字符串；from: 搜索起点
+    };
+
+    getWords([], words);  // 第一次递归，获取所有单词的全排列（有序）
+    result = Array.from(new Set(result)); // 数组去重，排列变组合（无序）
+    result.forEach(item => getIndex(item, s, 0)); // 第二次递归，寻找子串下标
+    return indexArr;
 };
 
 /*
@@ -58,51 +55,53 @@ var findSubstringCopy = function(s, words) {
 * 再逐个截取子串中的单词与 words 比较，判断该子串是否合法
 * 与思路 1 不同，前者枚举出所有子串再进行筛选；后者先假设子串存在，再进行判断
 * */
-var findSubstring = function (s, words) {
+var findSubstring2 = function (s, words) {
     if (typeof s !== 'string' || !(Array.isArray(words)) || s === '' || !words.length) {
         return [];
     }
 
-    var wordLen = words[0].length;          // 一个单词的长度
-    var totalLen = wordLen * words.length;  // 所有单词的长度
-    var count = totalLen / wordLen;         // 所有单词个数
-    var wordsMap = {};                      // 记录各单词个数
-    var result = [];
+    var result = [], collect = {};
+    var count = words.length;        // 单词个数
+    var len = words[0].length;       // 一个单词的长度
+    var allLen = count * len;        // 所有单词的长度
 
-    for (let word of words) {
-        if (wordsMap[word]) {
-            wordsMap[word]++;
+    // 记录各个单词的数量
+    words.forEach(item => {
+        if (collect[item]) {
+            collect[item]++;
         } else {
-            wordsMap[word] = 1;
+            collect[item] = 1;
         }
-    }
+    });
 
     // 若子串存在，枚举出子串出现的次数（即子串出现的位置有几种）
-    for (var i = 0; i < s.length - totalLen + 1; i++) {
-        var temp = Object.assign({}, wordsMap);  // 拷贝一份
-        var subString = s.slice(i, i + totalLen);           // 截取子串
-        var j = 0, n = 0;
+    for (var i = 0; i < s.length - allLen + 1; i++) {
+        var sub = s.slice(i, allLen + i);  // 取出一个子串
+        var temp = Object.assign({}, collect); // 拷贝一份使用
 
-        // 判断出现在某一位置上的子串的合法性
-        while (n < count) {
-            var word = subString.slice(j, j + wordLen); // 从子串中截取出各单词
+        // 内层循环次数等于单词个数
+        for (var j = 0; j < sub.length + 1; j += len) {
+            var word = sub.slice(j, len + j);  // 取出一个单词
             if (temp[word]) {
                 temp[word]--;
-            } else {
-                break;
             }
-
-            j += wordLen;
-            n++;
         }
 
-        // 内层循环结束后，若单词数用尽，则反证子串合法
-        if (Object.values(temp).every(item => item === 0)) {
-            result.push(i);
-        }
+        // 内层循环结束，若单词用尽则反证子串存在
+        Object.values(temp).every(item => item === 0) && result.push(i);
     }
+
     return result;
 };
 
-console.log(findSubstring(s, words));
-console.log(findSubstringCopy(s, words));
+var s1 = "aaaaaaaaaaaaaa", words1 = ["aa","aa"];
+var s2 = "barfoothefoobarman", words2 = ["foo","bar"];
+var s3 = "wordgoodgoodgoodbestword", words3 = ["word","good","best","word"];
+
+console.log(findSubstring1(s1, words1));
+console.log(findSubstring1(s2, words2));
+console.log(findSubstring1(s3, words3));
+
+console.log(findSubstring2(s1, words1));
+console.log(findSubstring2(s2, words2));
+console.log(findSubstring2(s3, words3));
