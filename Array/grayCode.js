@@ -15,76 +15,45 @@
 *
 * */
 
-// 逻辑太复杂
-var make = function (n) {
-    if (n === 1) {
-        return ['0', '1'];  // 格雷码的最小序列
-    } else {
-        var prev = make(n - 1); // 每次计算格雷码序列，都要获取上一次的序列
-        var temp = [];    // 格雷码序列暂存器
-        var max = Math.pow(2, n) - 1;  // 格雷码序列长度为 2^n，用数组表示时最大 index 值需 - 1
-
-        // 找出格雷码序列的对称性，暂存器首尾元素补齐 0 和 1
-        for (var i = 0; i < prev.length; i++) {
-            temp[i] = `0${prev[i]}`;
-            temp[max - i] = `1${prev[i]}`;
-        }
-        return temp;
-    }
-};
-var grayCodeFn = function(n) {
-    if (n === 0) {
-        return [0];
-    }
-
-    // 二进制转十进制数
-    return make(n).map(item => parseInt(item, 2));
-};
-
-// 精编版
+/*
+* 格雷编码的特征：
+* 1. 所有二进制编码具有一定的对称性；
+* 2. 每次递归都以上一轮编码为模板进行复制；
+* 3. 复制的编码首位补 1，模板首位补 0；
+* 4. 位数为 n 的编码，其总数为 2^n
+* */
 var grayCode = function(n) {
-    if (typeof n !== 'number' || n < 0) {
-        return null;
-    }
+    /*
+    * 用二维数组表示编码：
+    * 第一维度：表示编码总数（即第一维度的长度）；
+    * 第二维度：表示编码的位数（bit）；
+    * */
+    var bit = 1, code = [[0], [1]];  // 最小位数和编码
 
     if (n === 0) {
         return [0];
     }
 
-    /*
-    * 第一维度：表示行，指在 n 位时所有编码的可能性
-    * 第二维度：表示列，指位数 n
-    * 数学规律：第一维度的长度 = 2^n；第二维度的长度 = n；格雷编码具有几何对称性
-    * */
-    var bit = 1, code = [[0], [1]]; // 最小位数 1，初始长度 2，因为 2^n = 2，编码有 2 种
-    var range = function (bit, n, code) {
-        // 递归终止条件：位数 = 输入值
-        if (bit === n) {
-            return code;
-        }
+    if (n === 1) {
+        return code;
+    }
 
-        ++bit;
-        var len = Math.pow(2, bit);   // 计算位数增加后的编码总数
-        var limit = code.length;        // 记录当前编码的总数
-
-        for (var i = 0; i < limit; i++) {
-            var curItem = [].concat(code[i]); // 注意，code[i] 是引用类型
-            code[i].unshift(0);         // 这一行写不写其实无所谓，为了直观地观察二进制编码还是写上吧
-            if (!code[len - 1 - i]) {
-                code[len - 1 - i] = curItem;  // 格雷编码具有几何对称性，此处需赋值
-                code[len - 1 - i].unshift(1); // 因位数增加，所以补 1，表示进位
+    var range = function () {
+        if (n > bit) {
+            var len = Math.pow(2, ++bit); // 位数自增并计算编码总数
+            for (var i = 0; i < len / 2; i++) {
+                var temp = [].concat(code[i]);   // 拷贝一份引用类型的数据
+                code[i].unshift(0);       // 这一行写不写无所谓，为了直观检测编码还是写上吧
+                code[len - 1 - i] = temp;       // 根据编码对称性新增数组元素
+                code[len - 1 - i].unshift(1); // 位数增加，补 1，表示进位
             }
+            range(bit);
         }
-
-        return range(bit, n, code); // 当前编码完成，进入下一次递归
     };
 
-    // 二进制解码
-    var decode = function (code) {
-        return code.map(item => parseInt(item.join(''), 2));
-    };
-
-    return decode(range(bit, n, code));
+    range();
+    return code.map(item => parseInt(item.join(''), 2)); // 二进制编码转十进制数
 };
 
+console.log(grayCode(3));
 console.log(grayCode(4));
