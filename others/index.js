@@ -5,66 +5,72 @@
     输入异常数据返回 0
  */
 
-function calcMolecularWeight(str) {
-    if (typeof str !== 'string' || str === '') {
-        return 0;
+var mapEl = {
+    C: [12, 0],
+    N: [14, 0],
+    H: [1, 0],
+    O: [16, 0],
+    S: [32, 0],
+    K: [39, 0],
+    Ca: [40, 0],
+    Na: [23, 0],
+    Mg: [24, 0],
+    Cu: [64, 0],
+    Fe: [56, 0],
+    Cl: [35, 0]
+};
+
+var calcMolecularWeight = function (str, mapEl) {
+    var obj = {};
+    for (var key in mapEl) {
+        obj[key] = [].concat(mapEl[key]);   // 深拷贝
     }
 
-    var mapWeight = {
-        C: [12, 0],
-        H: [1, 0],
-        O: [16, 0],
-        N: [14, 0]
-    };
-
-    var result = 0, el = null, num = '';
-    for (var i = 0; i < str.length; i++) {
-        // 当前值是元素
-        if (isNaN(str[i])) {
-            // 若 num 和 el 有值，则累加
-            if (num && el) {
-                mapWeight[el][1] += +num;
-                num = '';
+    var temp = str[0], num = '', pat = /[a-z]/;
+    for (var i = 1; i < str.length + 1; i++) {
+        if (isNaN(str[i])) {              // 当前元素是原子
+            if (pat.test(str[i]) && str[i]) {       // 是否为小写字母
+                temp += str[i];
             } else {
-                // 第一次 el 为 null
-                if (el) {
-                    mapWeight[el][1] += 1;
+                if (num) {
+                    obj[temp][1] += +num;    // 计数累加
+                    num = '';                // 计数清零
+                } else {
+                    obj[temp][1]++;
                 }
+                temp = str[i];               // 记录当前元素
             }
-
-            el = str[i]; // 记录当前元素
-        } else {
+        } else {                        // 当前元素是数字
             num += str[i];
         }
-
-        // 处理最后一次循环
-        if (i === str.length - 1) {
-            // 最后的值是元素
-            if (isNaN(str[i])) {
-                mapWeight[el][1] += 1;
-            } else {
-                mapWeight[el][1] += +num;
-            }
-        }
     }
 
-    for (var key in mapWeight) {
-        result += mapWeight[key][0] * mapWeight[key][1];
-    }
+    return Object.values(obj).reduce((calc, item) => {
+        return calc + (item[0] * item[1]);
+    }, 0);
+};
 
-    console.log(mapWeight);
-    return result;
-}
+var el1 = 'CO2';
+var el2 = 'H2O';
+var el3 = 'NO2';
+var el4 = 'CH4';
+var el5 = 'NaCl';
+var el6 = 'NaCO3';
+var el7 = 'CaCO3';
+var el8 = 'CuSO4';
+var el9 = 'FeO2H2';
+var el10 = 'C2H6O';
 
-var co2 = 'CO2';
-var h2o = 'H2O';
-var no2 = 'NO2';
-var hc11n2 = 'HC11N2';
-
-console.log(calcMolecularWeight(co2));
-console.log(calcMolecularWeight(h2o));
-console.log(calcMolecularWeight(no2));
-console.log(calcMolecularWeight(hc11n2));
+console.log(calcMolecularWeight(el1, mapEl));
+console.log(calcMolecularWeight(el2, mapEl));
+console.log(calcMolecularWeight(el3, mapEl));
+console.log(calcMolecularWeight(el4, mapEl));
+console.log(calcMolecularWeight(el5, mapEl));
+console.log(calcMolecularWeight(el6, mapEl));
+console.log(calcMolecularWeight(el7, mapEl));
+console.log(calcMolecularWeight(el8, mapEl));
+console.log(calcMolecularWeight(el9, mapEl));
+console.log(calcMolecularWeight(el10, mapEl));
 
 /*
     请完成函数：
