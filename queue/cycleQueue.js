@@ -41,7 +41,7 @@ MyCircularQueue.prototype.deQueue = function() {
 
 // 队列是否为空
 MyCircularQueue.prototype.isEmpty = function() {
-    return this.front() === this.rear() && !this.queue[this.front()];
+    return this.front() === this.rear() && !this.queue[this.front()] && this.queue[this.front()] !== 0;
 };
 
 // 队列是否已满
@@ -49,13 +49,13 @@ MyCircularQueue.prototype.isFull = function() {
     return (this.front() === this.rear()) && (!!this.queue[this.front()] || this.queue[this.front()] === 0);
 };
 
-var queue = new MyCircularQueue(4); // 初始化队列
+var queue = new MyCircularQueue(4); // 初始化队列，(题目要求：队列操作数不能为 0，但代码已兼容 0)
 
 console.log(queue.queue, queue.isEmpty(), queue.isFull()); // 检查队列
 
-queue.enQueue(1);
-queue.enQueue(2);
-queue.enQueue(3);
+queue.enQueue(0);
+queue.enQueue(100);
+queue.enQueue(200);
 console.log(queue.queue, queue.isEmpty(), queue.isFull(), queue.front(), queue.Front(), queue.rear(), queue.Rear()); // 检查队列
 
 console.log(queue.enQueue(4));
@@ -70,7 +70,7 @@ console.log(queue.deQueue());
 console.log(queue.deQueue());
 console.log(queue.queue, queue.isEmpty(), queue.isFull(), queue.front(), queue.Front(), queue.rear(), queue.Rear()); // 检查队列
 
-queue.enQueue('浅色星河');
+queue.enQueue(0);
 console.log(queue.queue, queue.isEmpty(), queue.isFull(), queue.front(), queue.Front(), queue.rear(), queue.Rear()); // 检查队列
 
 queue.deQueue();
