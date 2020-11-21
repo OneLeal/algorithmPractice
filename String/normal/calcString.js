@@ -22,7 +22,7 @@
 
 var s = '00110011';
 
-// 双向推导
+// 双向推导(双指针)
 var countBinarySubstrings = function(s) {
     if (typeof s !== 'string') {
         return 0;
