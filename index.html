@@ -7,5 +7,45 @@
 <body>
     <div>LeetCode 题解</div>
 </body>
-<script type="text/javascript" src="String/easy/strStr.js"></script>
+<!--<script type="text/javascript" src="Array/normal/rotate.js"></script>-->
+<script type="module">
+    // var threeSum = function(nums) {
+    //     if (!nums.length) return [];
+    //     var result = [];
+    //     var isContain = function (target, result) {
+    //         for (var i = 0; i < result.length; i++) {
+    //             var item = [].concat(result[i]);
+    //             target.forEach(tar => {
+    //                 var index = item.indexOf(tar);
+    //                 index > -1 && item.splice(index, 1);
+    //             });
+    //             if (!item.length) {
+    //                 return true;
+    //             }
+    //         }
+    //         return false;
+    //     };
+    //     var recursion = function (target, nums) {
+    //         if (target.length === 3) {
+    //             var calc = target.reduce((calc, num) => calc + num, 0);
+    //             calc === 0 && !isContain(target, result) && result.push(target);
+    //         } else {
+    //             nums.forEach((item, index) => {
+    //                 var temp = [].concat(nums);
+    //                 temp.splice(index, 1);
+    //                 recursion(target.concat(item), temp);
+    //             });
+    //         }
+    //     };
+    //     recursion([], nums);
+    //     return result;
+    // };
+
+    var threeSum = function (nums) {
+        if (!nums.length) return [];
+
+    };
+    var nums = [-1, 0, 1, 2, -1, -4];
+    console.log(threeSum(nums));
+</script>
 </html>

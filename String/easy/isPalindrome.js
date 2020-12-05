@@ -29,3 +29,8 @@ var isPalindrome = function(x) {
     }
     return original === num;
 };
+
+// 方法三：终极偷懒写法
+var isPalindrome = function(x) {
+    return +(x + '').split('').reverse().join('') === x;
+};

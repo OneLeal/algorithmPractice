@@ -73,20 +73,14 @@ var obj = {
     }
 };
 var findProp = function (tar, prop) {
-    if (!prop || typeof prop !== 'string' || !(tar instanceof Object)) {
-        return false;
-    }
+    if (!prop || typeof prop !== 'string' || !(tar instanceof Object)) return false;
     var result = null;
     var range = function (tar, prop) {
-        if (!(Object.keys(tar).includes(prop))) {
-            for (var key in tar) {
-                if (tar[key] instanceof Object) {
+        if (Object.keys(tar).includes(prop)) result = tar[prop];
+        else
+            for (var key in tar)
+                if (tar[key] instanceof Object)
                     range(tar[key], prop);
-                }
-            }
-        } else {
-            result = tar[prop];
-        }
     };
     range(tar, prop);
     return result;

@@ -9,10 +9,8 @@ function findSingleNumber(arr) {
     if (!(arr instanceof Array)) {
         return;
     }
-
     var obj = {};
     var result;
-
     arr.forEach(item => {
         if (!(obj.hasOwnProperty(item))) {
             obj[item] = 1;
@@ -20,13 +18,10 @@ function findSingleNumber(arr) {
             obj[item]++;
         }
     });
-
     for (var key in obj) {
         (obj[key] % 2 === 1) ? (result = key) : null;
     }
-
     return result;
 }
-
 
 console.log(findSingleNumber(arr));
